@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { ReactElement, memo } from "react";
 import { ProductType } from "../context/ProductsProvider";
 import { ReducerActionType, ReducerAction } from "../context/CartProvider";
 
@@ -36,7 +36,8 @@ const Product = ({
         {new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "USD",
-        }).format(product.price)} {itemInCart}
+        }).format(product.price)}{" "}
+        {itemInCart}
       </p>
       <button onClick={onAddToCart}>Add to Cart</button>
     </article>
@@ -45,4 +46,19 @@ const Product = ({
   return content;
 };
 
-export default Product;
+function areProductsEqual(
+  { product: prevProduct, inCart: prevInCart }: PropsType,
+  { product: nextProduct, inCart: nextInCart }: PropsType
+) {
+  return (
+    Object.keys(prevProduct).every((key) => {
+      return (
+        prevProduct[key as keyof ProductType] ===
+        nextProduct[key as keyof ProductType]
+      );
+    }) && prevInCart === nextInCart
+  );
+}
+
+const MemorizedProduct = memo<typeof Product>(Product, areProductsEqual);
+export default MemorizedProduct;
